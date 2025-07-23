@@ -1,0 +1,17 @@
+# Excluded files
+/.idea
+/.vscode
+/.git
+/public/storage
+/bootstrap/cache/*
+/storage/app/*
+/storage/framework/views/*
+/storage/logs/*
+/tests
+/vendor
+.dockerignore
+.editorconfig
+.gitattributes
+.gitignore
+compose.*.yaml
+Dockerfile
