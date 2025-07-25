@@ -26,6 +26,13 @@ Route::get('/ping', function () {
     ]);
 });
 
+Route::middleware('auth:api')->get('/pingAuth', function () {
+    return response()->json([
+        'message' => 'pong',
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'

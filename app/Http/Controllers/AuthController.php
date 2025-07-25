@@ -110,7 +110,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-    
+
         if ($validator->fails()) {
             return ApiResponse::error(
                 'Ошибка валидации',
@@ -118,19 +118,19 @@ class AuthController extends Controller
                 $validator->errors()
             );
         }
-        
+
         $credentials = $request->only('email', 'password');
-    
+
         if (!$token = auth('api')->attempt($credentials)) {
             return ApiResponse::error(
-                'Неверные учетные данные', 
+                'Неверные учетные данные',
                 401,
                 [],
             );
         }
-    
+
         $user = auth('api')->user();
-    
+
         return ApiResponse::success([
             'access_token' => $token,
             'token_type' => 'Bearer',
