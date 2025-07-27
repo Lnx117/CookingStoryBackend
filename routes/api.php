@@ -44,8 +44,8 @@ Route::group([
     // Route::get('getSession', [AuthController::class, 'getUser']);
 });
 
-Route::get('/auth/getSession', function (Request $request) {
-    return $request->user();
-});
+// Route::get('/auth/getSession', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::middleware('auth:api')->get('/auth/getSession', [AuthController::class, 'getUser']);
