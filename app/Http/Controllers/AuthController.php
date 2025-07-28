@@ -91,9 +91,9 @@ class AuthController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:30'],
+                'name' => ['required', 'string', 'max:30','regex:/^[a-zA-Zа-яА-ЯёЁ\s\-\']+$/u'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'min:6', 'max:12'],
+                'password' => ['required', 'string', 'min:6', 'max:30'],
                 'confirmPassword' => ['required', 'string', 'same:password'],
             ]);
 
@@ -200,7 +200,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6,max:30',
         ]);
 
         if ($validator->fails()) {
