@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use ClickHouseDB\Client;
+use App\Enums\LogLevels;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ use ClickHouseDB\Client;
 // });
 
 Route::get('/ping', function () {
-    dd(ClickHouseLog::test()); // коротко и удобно
+    ClickHouseLog::log(LogLevels::WARNING, 'Что-то подозрительное', ['user_id' => 42]);
 
 // // Читаем настройки из env
 //     $config = [
