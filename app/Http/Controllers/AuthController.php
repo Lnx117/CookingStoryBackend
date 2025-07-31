@@ -241,4 +241,16 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function getTest(Request $request)
+    {
+        Log::info('Пользователь залогинился', ['user_id' => 1]);
+        dd(1);
+
+    }
+
+    public function postTest(Request $request)
+    {
+        dd(2);
+    }
 }

@@ -114,6 +114,21 @@ services:
         networks:
             - api
 
+    clickhouse:
+      image: clickhouse/clickhouse-server:latest
+      environment:
+        CLICKHOUSE_USER: default
+        CLICKHOUSE_PASSWORD: ""  # Пустой пароль
+        CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1  # Разрешаем управление доступом
+      ports:
+        - "8123:8123" # HTTP интерфейс
+        - "9002:9000" # Native protocol
+      volumes:
+        - clickhouse_data:/var/lib/clickhouse
+        - ./clickhouse-config/users.xml:/etc/clickhouse-server/users.d/users.xml
+      networks:
+        - api
+
 volumes:
     pgsql:
         driver: local
@@ -125,6 +140,9 @@ volumes:
         driver: local
 
     minio:
+        driver: local
+
+    clickhouse_data:
         driver: local
 
 networks:
