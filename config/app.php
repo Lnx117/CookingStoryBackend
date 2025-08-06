@@ -125,6 +125,7 @@ return [
 
     'aliases' => [
         'ClickHouseLog' => App\Facades\ClickHouseLog::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
     ],
 
 ];

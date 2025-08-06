@@ -12,6 +12,7 @@
         "laravel/octane": "^2.11",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "orchid/platform": "^14.52",
         "smi2/phpclickhouse": "^1.6",
         "tymon/jwt-auth": "*"
     },
