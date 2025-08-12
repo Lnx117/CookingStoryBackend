@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Enums\LogLevels;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BannerController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +19,10 @@ use App\Enums\LogLevels;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::get('/download/{path}', function ($path) {
+    return \Illuminate\Support\Facades\Storage::disk('minio_files')->download($path);
+})->where('path', '.*')->name('files.download');
 
 Route::get('/ping', function () {
     ClickHouseLog::log(LogLevels::WARNING, 'Что-то подозрительное', ['user_id' => 42]);
@@ -70,11 +74,10 @@ Route::group([
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('postTest', [AuthController::class, 'postTest']);
-    Route::get('getTest', [AuthController::class, 'getTest']);
-    // Route::get('getSession', [AuthController::class, 'getUser']);
+    Route::post('getTest', [AuthController::class, 'getTest']);
 });
 
+Route::middleware('auth:api')->get('/auth/getSession', [AuthController::class, 'getSession']);
 
-Route::middleware('auth:api')->get('/auth/getSession', [AuthController::class, 'getUser']);
+Route::get('/getBanners', [BannerController::class, 'index']);

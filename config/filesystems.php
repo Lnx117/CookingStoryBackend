@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        'minio_files' => [
+            'driver' => 's3',
+            'endpoint' => env('MINIO_ENDPOINT'),
+            'url' => env('MINIO_PUBLIC_URL'),
+            'key' => env('MINIO_KEY'),
+            'secret' => env('MINIO_SECRET'),
+            'region' => env('MINIO_REGION', 'us-east-1'),
+            'bucket' => env('MINIO_BUCKET', 'files'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*

@@ -3,21 +3,18 @@ FROM php:8.3-cli as base
 
 # Retrieve APT lists
 RUN apt-get update \
-# Install APT packages
     && apt-get install -y  \
-# Install libbrotli-dev  is required for laravel OCTANE server swoole
-    libbrotli-dev \
-# Install ZIP library
-    libzip-dev \
-# Install ZIP binary
-    zip \
-# Install Git binary
-    git \
-# Install PostgresSQL library
-    libpq-dev \
-# Install Process monitoring package
-    procps \
-# Remove APT lists
+        libbrotli-dev \
+        libzip-dev \
+        zip \
+        git \
+        libpq-dev \
+        procps \
+        libfreetype6-dev \
+        libjpeg-dev \
+        libpng-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions using PECL

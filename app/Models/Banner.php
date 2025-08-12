@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Filters\Filterable;
+use EloquentFilter\Filterable as Filter;
 use Orchid\Screen\AsSource;
-use App\Models\Programs\Program;
 
 class Banner extends Model
 {
     use HasFactory;
     use AsSource;
     use Filterable;
+    use Filter;
 
     /**
      * The table associated with the model.

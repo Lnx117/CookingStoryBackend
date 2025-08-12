@@ -2,7 +2,11 @@
 
 namespace App\Orchid\Screens\Tables;
 
+use App\Enums\LogLevels;
+use App\Facades\ClickHouseLog;
 use App\Http\Requests\BannerUpdateRequest;
+use App\Interfaces\BannerRepositoryInterface;
+use App\Interfaces\BannerServiceInterface;
 use App\Models\Banner;
 use App\Orchid\Layouts\Tables\Banners;
 use Illuminate\Http\Request;
@@ -14,9 +18,16 @@ use Orchid\Support\Facades\Toast;
 use Orchid\Screen\Layouts\Modal;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\TextArea;
+use Orchid\Screen\Fields\Upload;
 
 class BannerScreen extends Screen
 {
+    protected BannerServiceInterface $service;
+
+    public function __construct(BannerServiceInterface $service) {
+        $this->service = $service;
+    }
+
     /**
      * Fetch data to be displayed on the screen.
      *
@@ -66,9 +77,15 @@ class BannerScreen extends Screen
                     Input::make('banner.title')
                         ->title('Заголовок')
                         ->required(),
-                    Input::make('banner.url')
-                        ->title('Ссылка')
+                    Input::make('banner.code')
+                        ->title('Код')
+                        ->value('')
                         ->required(),
+                    Upload::make('banner.image')
+                        ->storage('minio_files') // диск из filesystems.php
+                        ->path('banners')
+                        ->maxFiles(1)
+                        ->acceptedFiles('image/*'),
                     CheckBox::make('banner.active')
                         ->title('Активность'),
                     TextArea::make('banner.short_description')
@@ -84,10 +101,14 @@ class BannerScreen extends Screen
                         ->title('Заголовок')
                         ->value('')
                         ->required(),
-                    Input::make('banner.url')
-                        ->title('Ссылка')
+                    Input::make('banner.code')
+                        ->title('Код')
                         ->value('')
                         ->required(),
+                    Upload::make('banner.image')
+                        ->storage('minio_files') // диск из filesystems.php
+                        ->maxFiles(1)
+                        ->acceptedFiles('image/*'),
                     CheckBox::make('banner.active')
                         ->value(true)
                         ->title('Активность'),
@@ -128,11 +149,10 @@ class BannerScreen extends Screen
     public function create(BannerUpdateRequest $request): void
     {
         try {
-            Banner::create($request->validated());
-
+            $this->service->orchidCreateBanner($request);
             Toast::info('Баннер успешно добавлен');
-
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            ClickHouseLog::log(LogLevels::ERROR, 'Ошибка при создании баннера из админки', ['Error' => $e->getMessage()]);
             Toast::error('Произошла ошибка при добавлении баннера: ' . $e->getMessage());
         }
     }
@@ -140,10 +160,11 @@ class BannerScreen extends Screen
     public function update(BannerUpdateRequest $request): void
     {
         try {
-            $banner = Banner::find($request->input('banner.id'))->update($request->validated());
+            $this->service->orchidUpdateBanner($request);
             Toast::info('Баннер успешно обновлен');
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            ClickHouseLog::log(LogLevels::ERROR, 'Ошибка при обновлении баннера из админки', ['Error' => $e->getMessage()]);
             Toast::error('Произошла ошибка при обновлении баннера: ' . $e->getMessage());
         }
 
@@ -152,12 +173,11 @@ class BannerScreen extends Screen
     public function delete(Request $request)
     {
         try {
-            $banner = Banner::findOrFail($request->input('banner.id'));
-            $banner->delete();
-
+            $this->service->orchidDeleteBanner($request);
             Toast::info('Баннер успешно удален');
-        } catch (\Exception $e) {
-            Toast::error($e->getMessage());
+        } catch (\Throwable $e) {
+            ClickHouseLog::log(LogLevels::ERROR, 'Ошибка при удалении баннера из админки', ['Error' => $e->getMessage()]);
+            Toast::error('Ошибка при удалении баннера из админки');
         }
     }
 

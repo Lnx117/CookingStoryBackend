@@ -1,19 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Http\Responses\ApiResponse;
+use App\Enums\LogLevels;
+use App\Facades\ClickHouseLog;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Log;
+use App\Interfaces\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+// use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    public function __construct(AuthServiceInterface $authService)
+    {
+        $this->authService = $authService;
+    }
+
+
     /**
      * @OA\Post(
      *     path="/auth/register",
@@ -87,48 +96,9 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request) :JsonResponse
+    public function register(Request $request): JsonResponse
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:30','regex:/^[a-zA-Zа-яА-ЯёЁ\s\-\']+$/u'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'min:6', 'max:30'],
-                'confirmPassword' => ['required', 'string', 'same:password'],
-            ]);
-
-            if ($validator->fails()) {
-                return ApiResponse::error(
-                    'Ошибка валидации',
-                    422,
-                    $validator->errors()
-                );
-            }
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-
-            $token = JWTAuth::fromUser($user);
-
-            return ApiResponse::success(
-                [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'expires_in' => config('jwt.ttl') * 60,
-                    'user' => $user,
-                ],
-                'Регистрация прошла успешно'
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                'Неизвестная ошибка',
-                500,
-                [$e->getMessage()]
-            );
-        }
+        return $this->authService->register($request);
     }
 
 
@@ -144,8 +114,8 @@ class AuthController extends Controller
      *         description="User credentials",
      *         @OA\JsonContent(
      *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="password123", minLength=6)
+     *             @OA\Property(property="email", type="string", format="email", example="vlad1@vlad.ru"),
+     *             @OA\Property(property="password", type="string", format="password", example="vlad1@vlad.ru", minLength=6)
      *         )
      *     ),
      *     @OA\Response(
@@ -196,56 +166,120 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request) :JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:6,max:30',
-        ]);
-
-        if ($validator->fails()) {
-            return ApiResponse::error(
-                'Ошибка валидации',
-                422,
-                $validator->errors()
-            );
-        }
-
-        $credentials = $request->only('email', 'password');
-
-        if (!$token = auth('api')->attempt($credentials)) {
-            return ApiResponse::error(
-                'Неверные учетные данные',
-                401,
-                [],
-            );
-        }
-
-        $user = auth('api')->user();
-
-        return ApiResponse::success([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user,
-        ], 'Авторизация прошла успешно');
+        return $this->authService->login($request);
     }
 
-    public function logout(Request $request)
+    /**
+     * @OA\Post(
+     *     path="/auth/logout",
+     *     tags={"Authentication"},
+     *     summary="Logout user",
+     *     description="Invalidates the current access token",
+     *     operationId="authLogout",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successfully logged out",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Logged out")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="User not authenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Token not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No active token found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Logout failed")
+     *         )
+     *     )
+     * )
+     */
+    public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json(['message' => 'Logged out']);
+        return $this->authService->logout($request);
     }
 
-    public function getUser(Request $request)
+    /**
+     * @OA\Get(
+     *     path="/auth/getSession",
+     *     tags={"Authentication"},
+     *     summary="Get current user data",
+     *     description="Returns authenticated user information",
+     *     operationId="getUserSession",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="created_at", type="string", format="date-time"),
+     *             @OA\Property(property="updated_at", type="string", format="date-time")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="User not authenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Failed to get user data")
+     *         )
+     *     )
+     * )
+     */
+    public function getSession(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        return $this->authService->getSession($request);
     }
 
     public function getTest(Request $request)
     {
-        Log::info('Пользователь залогинился', ['user_id' => 1]);
-        dd(1);
+     $test = new \App\Services\FileStoreService;
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+
+            try {
+                $path = $test->storeFromRequest(
+                    $file,
+                    'files',
+                );
+                ClickHouseLog::log(LogLevels::INFO, 'Что-то подозрительное', ['$path' => $path]);
+                $paee = $test->getViewUrl(
+                    $path[0],
+                );
+                ClickHouseLog::log(LogLevels::INFO, 'Что-то подозрительное', ['$paee' => $paee]);
+                $paee = $test->getDownloadUrl(
+                    $path[0],
+                );
+                ClickHouseLog::log(LogLevels::INFO, 'Что-то подозрительное', ['$paee' => $paee]);
+                return response()->json(['message' => 'File stored successfully']);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+
+        }
 
     }
 

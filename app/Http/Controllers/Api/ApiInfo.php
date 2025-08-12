@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Documentation;
+namespace App\Http\Controllers\Api;
 
 /**
  * @OA\Info(
@@ -15,17 +15,24 @@ namespace App\Documentation;
  *         url="http://www.apache.org/licenses/LICENSE-2.0.html"
  *     )
  * )
- * 
+ *
  * @OA\Server(
  *     url="http://localhost:8000/api",
  *     description="Local API Server"
  * )
- * 
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
+ *
  * @OA\Tag(
  *     name="Authentication",
  *     description="API Endpoints for Authentication"
  * )
- * 
+ *
  * @OA\Tag(
  *     name="Products",
  *     description="API Endpoints for Products"

@@ -185,8 +185,10 @@ return [
      */
 
     'attachment' => [
-        'disk'      => env('PLATFORM_FILESYSTEM_DISK', 'public'),
-        'generator' => \Orchid\Attachment\Engines\Generator::class,
+        'disk' => 'minio_files', // используем MinIO
+        'path' => 'attachments', // базовая папка
+        'generator' => \Orchid\Attachment\Engines\Generator::class, // стандартный генератор
+        'model' => \Orchid\Attachment\Models\Attachment::class, // модель Orchid для вложений
     ],
 
     /*
@@ -320,5 +322,4 @@ return [
      */
 
     'provider' => \App\Orchid\PlatformProvider::class,
-
 ];
