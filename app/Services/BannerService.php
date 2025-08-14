@@ -6,10 +6,8 @@ use App\Enums\LogLevels;
 use App\Facades\ClickHouseLog;
 use App\Http\Requests\BannerRequest;
 use App\Http\Requests\BannerUpdateRequest;
-use App\Http\Responses\ApiResponse;
 use App\Interfaces\BannerRepositoryInterface;
 use App\Models\Banner;
-use Illuminate\Http\JsonResponse;
 use App\Interfaces\BannerServiceInterface;
 use Illuminate\Http\Request;
 
@@ -56,22 +54,13 @@ class BannerService implements BannerServiceInterface
 
     }
 
-    public function getBanners(BannerRequest $request): JsonResponse
+    public function getBanners(array $request): array
     {
         try {
-            $filter = $request->validated() ?? null;
-            $banners = $this->userRepository->getBanners($filter);
-
-            return ApiResponse::success(
-                $banners
-            );
+            return $this->userRepository->getBanners($request);
         } catch (\Throwable $e) {
             ClickHouseLog::log(LogLevels::ERROR, 'Не удалось получить список баннеров', ['Error' => $e->getMessage()]);
-            return ApiResponse::error(
-                'Неизвестная ошибка',
-                500,
-                [$e->getMessage()]
-            );
+            throw $e;
         }
     }
 

@@ -18,6 +18,7 @@ class BannerUpdateRequest extends FormRequest
         $this->merge([
             'title' => $this->input('banner.title'),
             'code' => $this->input('banner.code'),
+            'url' => $this->input('banner.url'),
             'short_description' => $this->input('banner.short_description'),
             'active' => !empty($this->input('banner.active')),
             'image' => $this->input('banner.image'),
@@ -31,6 +32,7 @@ class BannerUpdateRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:255'],
             'active' => ['nullable', 'boolean'],
+            'url' => ['required', 'string', 'max:500'],
             // Всегда массив
             'image' => ['nullable', 'array'],
             'image.*' => ['integer', 'exists:attachments,id'],

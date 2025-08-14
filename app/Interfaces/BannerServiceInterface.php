@@ -12,6 +12,6 @@ interface BannerServiceInterface
     public function orchidCreateBanner(BannerUpdateRequest $request): Banner;
     public function orchidUpdateBanner(BannerUpdateRequest $request): bool;
     public function orchidDeleteBanner(Request $request): bool;
-    public function getBanners(BannerRequest $request): JsonResponse;
+    public function getBanners(array $request): array;
 
 }

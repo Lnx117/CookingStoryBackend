@@ -38,6 +38,7 @@ class Banners extends Table
         return [
             TD::make('title', 'title')->sort()->cantHide()->filter(TD::FILTER_TEXT),
             TD::make('code', 'code')->sort()->cantHide()->filter(TD::FILTER_TEXT),
+            TD::make('url', 'url')->sort()->cantHide()->filter(TD::FILTER_TEXT),
             TD::make('image_path', 'image_path')->sort()->cantHide()->filter(TD::FILTER_TEXT),
             TD::make('active', 'Активно')->render(function (Banner $banner) {
                 return $banner->active ? 'Активно' : 'Не активно';

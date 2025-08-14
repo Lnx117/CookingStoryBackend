@@ -27,6 +27,7 @@ class BannerRepository implements BannerRepositoryInterface
         $data = [
             'title' => $validated['title'],
             'code' => $validated['code'] ?? null,
+            'url' => $validated['url'] ?? null,
             'short_description' => $validated['short_description'],
             'active' => $validated['active'] ?? false,
         ];

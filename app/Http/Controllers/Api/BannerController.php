@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\BannerRequest;
+use App\Http\Responses\ApiResponse;
 use App\Interfaces\BannerServiceInterface;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -22,7 +23,17 @@ class BannerController extends Controller
      */
     public function index(BannerRequest $request): JsonResponse
     {
-        return $this->bannerService->getBanners($request);
+        try {
+            $banners = $this->bannerService->getBanners($request->validated());
+
+            return ApiResponse::success($banners);
+        } catch (\Throwable $e) {
+            return ApiResponse::error(
+                'Неизвестная ошибка',
+                500,
+                [$e->getMessage()]
+            );
+        }
     }
 
 }

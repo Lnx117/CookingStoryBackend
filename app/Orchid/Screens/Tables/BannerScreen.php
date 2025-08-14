@@ -81,6 +81,10 @@ class BannerScreen extends Screen
                         ->title('Код')
                         ->value('')
                         ->required(),
+                    Input::make('banner.url')
+                        ->title('Ссылка')
+                        ->value('')
+                        ->required(),
                     Upload::make('banner.image')
                         ->storage('minio_files') // диск из filesystems.php
                         ->path('banners')
@@ -103,6 +107,10 @@ class BannerScreen extends Screen
                         ->required(),
                     Input::make('banner.code')
                         ->title('Код')
+                        ->value('')
+                        ->required(),
+                    Input::make('banner.url')
+                        ->title('Ссылка')
                         ->value('')
                         ->required(),
                     Upload::make('banner.image')
