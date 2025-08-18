@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Orchid\Attachment\Models\Attachment;
 
-class BannerRepository implements BannerRepositoryInterface
+class RecipeRepository implements BannerRepositoryInterface
 {
     protected Banner $model;
     protected FileStoreServiceInterface $fileStoreService;

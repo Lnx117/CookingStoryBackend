@@ -9,9 +9,6 @@ use App\Http\Controllers\Log;
 use App\Interfaces\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-
-// use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
