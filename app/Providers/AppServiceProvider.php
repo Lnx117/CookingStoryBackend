@@ -15,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(\App\Providers\AuthCustomServiceProvider::class);
         $this->app->register(\App\Providers\BannerServiceProvider::class);
         $this->app->register(\App\Providers\FileStoreServiceProvider::class);
+        $this->app->register(\App\Providers\RecipeServiceProvider::class);
+        $this->app->register(\App\Providers\RecipeIngredientProvider::class);
+        $this->app->register(\App\Providers\RecipeStepProvider::class);
+        $this->app->register(\App\Providers\RecipeTagProvider::class);
     }
 
     /**

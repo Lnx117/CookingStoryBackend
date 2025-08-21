@@ -3,6 +3,7 @@
 use App\Enums\LogLevels;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\RecipeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,7 +26,7 @@ Route::get('/download/{path}', function ($path) {
 })->where('path', '.*')->name('files.download');
 
 Route::get('/ping', function () {
-    ClickHouseLog::log(LogLevels::WARNING, 'Что-то подозрительное', ['user_id' => 42]);
+//    ClickHouseLog::log(LogLevels::WARNING, 'Что-то подозрительное', ['user_id' => 42]);
 
 // // Читаем настройки из env
 //     $config = [
@@ -81,3 +82,15 @@ Route::group([
 Route::middleware('auth:api')->get('/auth/getSession', [AuthController::class, 'getSession']);
 
 Route::get('/getBanners', [BannerController::class, 'index']);
+
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'recipes'
+], function ($router) {
+    Route::post('create-recipe', [RecipeController::class, 'createRecipe']);
+    Route::post('update-recipe', [RecipeController::class, 'updateRecipe']);
+    Route::delete('delete-recipe/{id}', [RecipeController::class, 'deleteRecipe']);
+    Route::get('get-recipe-list', [RecipeController::class, 'getRecipeList']);
+    Route::get('get-recipe-by-id/{id}', [RecipeController::class, 'getRecipeById']);
+    Route::get('get-recipe-by-user-id/{id}', [RecipeController::class, 'getRecipeByUserId']);
+});
