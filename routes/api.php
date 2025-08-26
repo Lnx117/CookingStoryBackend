@@ -3,8 +3,10 @@
 use App\Enums\LogLevels;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\IngredientSearchController;
 use App\Http\Controllers\Api\RecipeController;
 use Illuminate\Support\Facades\Route;
+use Elastic\Elasticsearch\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,39 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::get('/es-test', function (Client $es) {
+    $index = 'ingredients';
+
+    // проверим доступность
+    try {
+        $ping = $es->ping();
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+
+    // попробуем найти что-то (например, по имени)
+    $result = $es->search([
+        'index' => 'ingredients',
+        'body'  => [
+            'query' => [
+                'match_phrase_prefix' => [
+                    'name_ru' => 'майо'
+                ]
+            ],
+            'size' => 10, // ограничение результатов
+        ]
+    ]);
+
+    return response()->json([
+        'status' => 'ok',
+        'ping'   => $ping,
+        'result' => $result->asArray(),
+    ]);
+});
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -93,4 +128,5 @@ Route::group([
     Route::get('get-recipe-list', [RecipeController::class, 'getRecipeList']);
     Route::get('get-recipe-by-id/{id}', [RecipeController::class, 'getRecipeById']);
     Route::get('get-recipe-by-user-id/{id}', [RecipeController::class, 'getRecipeByUserId']);
+    Route::get('/ingredients/search', IngredientSearchController::class);
 });

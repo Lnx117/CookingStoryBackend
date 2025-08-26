@@ -12,14 +12,14 @@ class RecipeTagService implements RecipeTagServiceInterface
         private RecipeTagRepositoryInterface $tagRepository
     ) {}
 
-    public function attachToRecipe(Recipe $recipe, array $tags): void
+    public function attachToRecipe(Recipe $recipe, array $tagIds): void
     {
-        $this->tagRepository->attach($recipe, $tags);
+        $this->tagRepository->attach($recipe, $tagIds);
     }
 
-    public function syncWithRecipe(Recipe $recipe, array $tags): void
+    public function syncWithRecipe(Recipe $recipe, array $tagIds): void
     {
-        $this->tagRepository->sync($recipe, $tags);
+        $this->tagRepository->sync($recipe, $tagIds);
     }
 
     public function detachFromRecipe(Recipe $recipe): void

@@ -74,8 +74,7 @@ class RecipeRepository implements RecipeRepositoryInterface
     {
         $q = Recipe::query()->with($with);
 
-        // Фильтры (расширяй по надобности)
-        if (array_key_exists('is_published', $filters)) {
+        if (!empty($filters['is_published'])) {
             $q->where('is_published', (bool) $filters['is_published']);
         }
 
@@ -100,12 +99,6 @@ class RecipeRepository implements RecipeRepositoryInterface
 
         return $q->paginate($perPage);
     }
-
-//    public function forAuthor(int $userId, array $filters = [], int $perPage = 15, array $with = []): LengthAwarePaginator
-//    {
-//        $filters['author_id'] = $userId;
-//        return $this->paginate($filters, $perPage, $with);
-//    }
 
     public function existsSlug(string $slug, ?int $ignoreId = null): bool
     {

@@ -11,6 +11,13 @@ class RecipeListRequest extends FormRequest
         return true; // Авторизация проверяется отдельно
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'is_published' => filter_var($this->is_published, FILTER_VALIDATE_BOOLEAN),
+        ]);
+    }
+
     public function rules(): array
     {
         return [

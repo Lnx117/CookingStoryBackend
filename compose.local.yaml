@@ -28,6 +28,7 @@ services:
         networks:
             - api
             - reverse-proxy
+            - elastic
 
     schedule:
         build:
@@ -129,6 +130,35 @@ services:
       networks:
         - api
 
+    elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+      container_name: elasticsearch
+      environment:
+        - discovery.type=single-node
+        - xpack.security.enabled=false
+        - ES_JAVA_OPTS=-Xms512m -Xmx512m
+        - ingest.geoip.downloader.enabled=false
+      volumes:
+        - esdata:/usr/share/elasticsearch/data
+      ports:
+        - "9200:9200"
+      networks:
+        - elastic
+
+    kibana:
+      image: docker.elastic.co/kibana/kibana:8.14.3
+      container_name: kibana
+      depends_on:
+        - elasticsearch
+      environment:
+        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      volumes:
+        - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+      ports:
+        - "5601:5601"
+      networks:
+        - elastic
+
 volumes:
     pgsql:
         driver: local
@@ -145,6 +175,9 @@ volumes:
     clickhouse_data:
         driver: local
 
+    esdata:
+      driver: local
+
 networks:
     api:
         driver: bridge
@@ -152,3 +185,6 @@ networks:
     reverse-proxy:
         driver: bridge
         external: true
+
+    elastic:
+      driver: bridge

@@ -7,6 +7,7 @@ use App\Interfaces\RecipeRepositoryInterface;
 use App\Interfaces\RecipeServiceInterface;
 use App\Interfaces\RecipeStepServiceInterface;
 use App\Interfaces\RecipeTagServiceInterface;
+use App\Interfaces\FileStoreServiceInterface;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -19,20 +20,30 @@ class RecipeService implements RecipeServiceInterface
         private RecipeRepositoryInterface $recipeRepository,
         private RecipeIngredientServiceInterface $recipeIngredientService,
         private RecipeStepServiceInterface $recipeStepService,
-        private RecipeTagServiceInterface $recipeTagService
+        private RecipeTagServiceInterface $recipeTagService,
+        private FileStoreServiceInterface $fileStoreService
     ) {}
 
-
+    /**
+     * Создать рецепт
+     */
     public function createRecipe(array $data, User $user): Recipe
     {
         return DB::transaction(function () use ($data, $user) {
+
+            // 0. Сохраняем превью
+            $path = $this->fileStoreService->storeFromRequest(
+                $data['preview_image'],
+                'recipes/preview',
+            );
+
             // 1. Создаём сам рецепт
             $recipe = $this->recipeRepository->create([
                 'user_id'      => $user->id,
                 'title'        => $data['title'],
                 'slug'         => Str::slug($data['title']),
                 'description'  => $data['description'] ?? null,
-                'preview_image'=> $data['preview_image'] ?? null,
+                'preview_image'=> $path[0] ?? null,
                 'servings'     => $data['servings'],
                 'cooking_time' => $data['cooking_time'] ?? null,
                 'is_published' => $data['is_published'] ?? false,
@@ -87,12 +98,12 @@ class RecipeService implements RecipeServiceInterface
     }
 
     /**
-     * Получить список рецептов с пагинацией
+     * Получить список всех рецептов с пагинацией и фильтрами
      */
-        public function listRecipes(array $filters = [], int $perPage = 15, array $with = ['user']): \Illuminate\Contracts\Pagination\LengthAwarePaginator
-        {
-            return $this->recipeRepository->paginate($filters, $perPage, $with);
-        }
+    public function listRecipes(array $filters = [], int $perPage = 15, array $with = ['user']): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->recipeRepository->paginate($filters, $perPage, $with);
+    }
 
     /**
      * Получить рецепт по ID (с подгрузкой связей)
@@ -101,16 +112,7 @@ class RecipeService implements RecipeServiceInterface
     {
         return $this->recipeRepository->findById($id, $with);
     }
-//
-//    /**
-//     * Получить рецепт по slug
-//     */
-//    public function getRecipeBySlug(string $slug, array $with = ['ingredients', 'steps', 'tags', 'author']): ?Recipe
-//    {
-//        return $this->recipes->findBySlug($slug, $with);
-//    }
-//
-//
+
     /**
      * Получить список рецептов конкретного пользователя
      */

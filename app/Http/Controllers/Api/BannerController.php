@@ -32,7 +32,7 @@ class BannerController extends Controller
      *     description="Возвращает список баннеров для фронтенда",
      *     operationId="getBanners",
      *     @OA\Parameter(
-     *         name="someFilter",
+     *         name="code",
      *         in="query",
      *         description="Пример фильтра для баннеров",
      *         required=false,

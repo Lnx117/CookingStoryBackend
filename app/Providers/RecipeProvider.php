@@ -8,7 +8,7 @@ use App\Services\RecipeService;
 use Illuminate\Support\ServiceProvider;
 
 
-class RecipeServiceProvider extends ServiceProvider
+class RecipeProvider extends ServiceProvider
 {
     /**
      * Register services.

@@ -12,6 +12,4 @@ interface RecipeStepRepositoryInterface
     public function update(RecipeStep $step, array $data): RecipeStep;
 
     public function delete(RecipeStep $step): bool;
-
-    public function getByRecipe(Recipe $recipe): \Illuminate\Support\Collection;
 }

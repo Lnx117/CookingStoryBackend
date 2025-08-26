@@ -23,9 +23,4 @@ class RecipeStepRepository implements RecipeStepRepositoryInterface
     {
         return $step->delete();
     }
-
-    public function getByRecipe(Recipe $recipe): \Illuminate\Support\Collection
-    {
-        return $recipe->steps()->orderBy('position')->get();
-    }
 }
