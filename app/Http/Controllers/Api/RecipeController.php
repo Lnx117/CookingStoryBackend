@@ -459,7 +459,13 @@ class RecipeController extends Controller {
      *         description="Количество элементов на странице (по умолчанию 15, макс. 100)",
      *         @OA\Schema(type="integer", example=20)
      *     ),
-     *
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         description="Номер страницы пагинации",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Успешный ответ",

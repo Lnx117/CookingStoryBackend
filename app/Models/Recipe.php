@@ -18,8 +18,21 @@ class Recipe extends Model
         'cooking_time',
         'calories_total',
         'is_published',
+        'proteins_total',
+        'fats_total',
+        'carbs_total',
+        'is_published'
     ];
 
+    protected $casts = [
+        'is_published' => 'boolean',
+        'servings' => 'integer',
+        'cooking_time' => 'integer',
+        'calories_total' => 'integer',
+        'proteins_total' => 'decimal:2',
+        'fats_total' => 'decimal:2',
+        'carbs_total' => 'decimal:2',
+    ];
     // Автор рецепта
     public function user()
     {

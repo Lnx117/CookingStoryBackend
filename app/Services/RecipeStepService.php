@@ -18,13 +18,23 @@ class RecipeStepService implements RecipeStepServiceInterface
     public function createForRecipe(Recipe $recipe, array $steps): void
     {
         foreach ($steps as $stepData) {
-            //сохраняем изображение
-            $path = $this->fileStoreService->storeFromRequest(
-                $stepData['image'],
-                'recipes/steps/images',
-            );
-            $stepData['image'] = $path[0] ?? null;
-            $this->stepRepository->create($recipe, $stepData);
+            $imagePath = null;
+
+            // Проверяем, есть ли изображение
+            if (!empty($stepData['image'])) {
+                $path = $this->fileStoreService->storeFromRequest(
+                    $stepData['image'],
+                    'recipes/steps/images',
+                );
+                $imagePath = $path[0] ?? null;
+            }
+
+            // Создаем шаг с изображением или без
+            $this->stepRepository->create($recipe, [
+                'step_number' => $stepData['step_number'],
+                'description' => $stepData['description'],
+                'image' => $imagePath,
+            ]);
         }
     }
 

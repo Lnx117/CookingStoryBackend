@@ -94,10 +94,15 @@ class RecipeRepository implements RecipeRepositoryInterface
             });
         }
 
-        // Сортировка по умолчанию — новые сверху
         $q->orderByDesc('created_at');
 
-        return $q->paginate($perPage);
+        // если в фильтрах передана страница
+        $page = !empty($filters['page']) ? (int) $filters['page'] : null;
+
+        return $q->paginate(
+            perPage: $perPage,
+            page: $page
+        );
     }
 
     public function existsSlug(string $slug, ?int $ignoreId = null): bool
@@ -121,5 +126,30 @@ class RecipeRepository implements RecipeRepositoryInterface
             $slug = "{$base}-{$i}";
         }
         return $slug;
+    }
+
+    public function calculateKBGUForRecipe(Recipe $recipe): void
+    {
+        $totalCalories = 0;
+        $totalProteins = 0;
+        $totalFats = 0;
+        $totalCarbs = 0;
+
+        foreach ($recipe->ingredients as $ingredient) {
+            $weight = $ingredient->pivot->weight_grams;
+            $ratio = $weight / 100;
+
+            $totalCalories += ($ingredient->calories ?? 0) * $ratio;
+            $totalProteins += ($ingredient->proteins ?? 0) * $ratio;
+            $totalFats += ($ingredient->fats ?? 0) * $ratio;
+            $totalCarbs += ($ingredient->carbs ?? 0) * $ratio;
+        }
+
+        $recipe->update([
+            'calories_total' => (int) round($totalCalories),
+            'proteins_total' => round($totalProteins, 2),
+            'fats_total' => round($totalFats, 2),
+            'carbs_total' => round($totalCarbs, 2),
+        ]);
     }
 }

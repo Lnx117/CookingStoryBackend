@@ -31,11 +31,15 @@ class RecipeService implements RecipeServiceInterface
     {
         return DB::transaction(function () use ($data, $user) {
 
+            $path = [];
+
             // 0. Сохраняем превью
-            $path = $this->fileStoreService->storeFromRequest(
-                $data['preview_image'],
-                'recipes/preview',
-            );
+            if (!empty($data['preview_image'])) {
+                $path = $this->fileStoreService->storeFromRequest(
+                    $data['preview_image'],
+                    'recipes/preview',
+                );
+            }
 
             // 1. Создаём сам рецепт
             $recipe = $this->recipeRepository->create([
@@ -53,6 +57,7 @@ class RecipeService implements RecipeServiceInterface
             $this->recipeIngredientService->attachToRecipe($recipe, $data['ingredients'] ?? []);
             $this->recipeStepService->createForRecipe($recipe, $data['steps'] ?? []);
             $this->recipeTagService->attachToRecipe($recipe, $data['tags'] ?? []);
+            $this->calculateKBGUForRecipe($recipe);
 
             // 3. Возвращаем рецепт с загруженными связями
             return $recipe->load(['ingredients', 'steps', 'tags']);
@@ -65,11 +70,22 @@ class RecipeService implements RecipeServiceInterface
     public function updateRecipe(Recipe $recipe, array $data): Recipe
     {
         return DB::transaction(function () use ($recipe, $data) {
+
+            $path = [];
+
+            // 0. Сохраняем превью
+            if (!empty($data['preview_image'])) {
+                $path = $this->fileStoreService->storeFromRequest(
+                    $data['preview_image'],
+                    'recipes/preview',
+                );
+            }
+
             $result = $this->recipeRepository->update($recipe, [
                 'title'        => $data['title'],
                 'slug'         => Str::slug($data['title']),
                 'description'  => $data['description'] ?? null,
-                'preview_image'=> $data['preview_image'] ?? null,
+                'preview_image'=> $path[0] ?? null,
                 'servings'     => $data['servings'],
                 'cooking_time' => $data['cooking_time'] ?? null,
                 'is_published' => $data['is_published'] ?? false,
@@ -78,6 +94,7 @@ class RecipeService implements RecipeServiceInterface
             $this->recipeIngredientService->syncWithRecipe($result, $data['ingredients'] ?? []);
             $this->recipeStepService->syncForRecipe($result, $data['steps'] ?? []);
             $this->recipeTagService->syncWithRecipe($result, $data['tags'] ?? []);
+            $this->calculateKBGUForRecipe($recipe);
 
             return $result->load(['ingredients', 'steps', 'tags']);
         });
@@ -92,6 +109,7 @@ class RecipeService implements RecipeServiceInterface
             $this->recipeIngredientService->detachFromRecipe($recipe);
             $this->recipeStepService->deleteForRecipe($recipe);
             $this->recipeTagService->detachFromRecipe($recipe);
+            $this->calculateKBGUForRecipe($recipe);
 
             return $this->recipeRepository->delete($recipe);
         });
@@ -121,6 +139,11 @@ class RecipeService implements RecipeServiceInterface
         $filters['author_id'] = $userId;
 
         return $this->recipeRepository->paginate($filters, $perPage, ['user']);
+    }
+
+    public function calculateKBGUForRecipe(Recipe $recipe): void
+    {
+        $this->recipeRepository->calculateKBGUForRecipe($recipe);
     }
 
 }

@@ -32,7 +32,7 @@ class RecipeListRequest extends FormRequest
 
     public function filters(): array
     {
-        return $this->only(['is_published', 'author_id', 'tag_ids', 'search']);
+        return $this->only(['is_published', 'author_id', 'tag_ids', 'search', 'page']);
     }
 
     public function perPage(): int
