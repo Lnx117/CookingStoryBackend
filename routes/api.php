@@ -61,6 +61,7 @@ Route::get('/download/{path}', function ($path) {
 })->where('path', '.*')->name('files.download');
 
 Route::get('/ping', function () {
+    dd(2);
 //    ClickHouseLog::log(LogLevels::WARNING, 'Что-то подозрительное', ['user_id' => 42]);
 
 // // Читаем настройки из env

@@ -16,10 +16,13 @@
 /public/build
 /public/hot
 /public/storage
+/config
 /storage/*.key
 /storage/pail
 /vendor
 /database/seeders/data
+compose.local.yaml
+Dockerfile
 Homestead.json
 Homestead.yaml
 Thumbs.db

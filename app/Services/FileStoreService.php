@@ -13,6 +13,7 @@ class FileStoreService implements FileStoreServiceInterface
 
     public function storeFromAttachment($fileIds, string $targetDir = 'files', string $disk = 'minio_files'): array
     {
+
         $fileIds = is_array($fileIds) ? $fileIds : [$fileIds];
         $paths = [];
 
