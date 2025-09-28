@@ -13,8 +13,17 @@ class RecipeRequest extends FormRequest
 
     public function prepareForValidation()
     {
+        $isPublished = $this->is_published;
+
+        // Правильное преобразование строк 'true'/'false' в boolean
+        if ($isPublished === 'true' || $isPublished === '1') {
+            $isPublished = true;
+        } elseif ($isPublished === 'false' || $isPublished === '0') {
+            $isPublished = false;
+        }
+
         $this->merge([
-            'is_published' => filter_var($this->is_published, FILTER_VALIDATE_BOOLEAN),
+            'is_published' => (bool)$isPublished,
         ]);
     }
 
