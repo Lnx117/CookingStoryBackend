@@ -34,7 +34,7 @@ class BannerRepository implements BannerRepositoryInterface
         if (!empty($validated['image'])) {
             // Передаем массив ID-шников (upload в orchid возвращает id)
             $id = is_array($validated['image']) ? $validated['image'][0] : $validated['image'];
-            $paths = $this->fileStoreService->storeFromAttachment($id, 'banners');
+            $paths = $this->fileStoreService->storeFromAttachment($id, 'promo');
             $data['image_path'] = $paths[0];
         }
 
@@ -57,7 +57,7 @@ class BannerRepository implements BannerRepositoryInterface
 
         if (!empty($validated['image'])) {
             $id = is_array($validated['image']) ? $validated['image'][0] : $validated['image'];
-            $paths = $this->fileStoreService->storeFromAttachment($id, 'banners');
+            $paths = $this->fileStoreService->storeFromAttachment($id, 'promo');
             $data['image_path'] = $paths[0];
         }
 
